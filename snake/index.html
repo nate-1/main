@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+    <title>Snake</title>
+    <meta charset="utf-8">
+    <style>
+        #gameBoard {
+            background-color: #541608;
+            position: relative;
+        }
+        
+        .snake {
+            background-color: white;
+            position: absolute;
+            display: block;
+        }
+        
+        #fruit {
+            position: relative;
+            background-color: red;
+            display: inline-block;
+        }
+        
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+            font-family: 'Roboto Mono';
+        }
+        
+        #speedDiv {
+            text-align: center;
+        }
+    </style>
+    <script>
+        //Size gotta be in px
+        let cellSize = 10;
+        let gameBoardHeight;
+        let gameBoardWidth;
+        let way = "down";
+        let stopGame = false;
+        let lastSnakeId = -1 //The id of the last part of the snake that has been created
+        let fruit;
+        let gameBoard;
+        let speed = 500;
+
+        function setSizeGameBoard(value, isHeight) {
+            gameBoard = document.getElementById("gameBoard");
+            if (value % cellSize != 0) {
+                while (value % cellSize != 0) {
+                    value++;
+                }
+                if (isHeight) {
+                    document.getElementById("height").value = value;
+                } else {
+                    document.getElementById("width").value = value;
+                }
+            }
+            if (isHeight) {
+                gameBoard.style.height = value + "px";
+                document.getElementById("heightV").textContent = value + "px";
+            } else {
+                gameBoard.style.width = value + "px";
+                gameBoard.style.marginLeft = "calc(50% - " + (value / 2) + "px)";
+                document.getElementById("widthV").textContent = value + "px";
+            }
+        }
+
+        function start() {
+            gameBoard = document.getElementById("gameBoard");
+            fruit = document.getElementById("fruit");
+            fruit.style.height = cellSize + "px";
+            fruit.style.width = cellSize + "px";
+            document.getElementById("speedDiv").style.paddingTop = (parseInt(document.getElementById("height").value)) + "px"
+            document.getElementById("settings").style.display = "none";
+            gameBoardHeight = document.getElementById("height").value;
+            gameBoardWidth = document.getElementById("width").value;
+            let headSnake = document.getElementById("headSnake");
+            console.log("margin: " + headSnake.style.marginLeft);
+            headSnake.style.height = cellSize + "px";
+            headSnake.style.width = cellSize + "px";
+            document.getElementById("gameBoard").style.position = "absolute";
+            if (gameBoardHeight % cellSize != 0 || gameBoardWidth % cellSize != 0) {
+                console.log("ERROR");
+            }
+            move(0, 0, headSnake);
+            document.addEventListener("keydown", changeWay);
+            moveFruit();
+        }
+
+        function changeWay(e) {
+            let a = "";
+            if (e.code.includes("Arrow")) {
+                let wayTemp = e.code.replace("Arrow", "").toLocaleLowerCase()
+                if (lastSnakeId > -1) {
+                    if (!((wayTemp == "right" && way == "left") || (wayTemp == "left" && way == "right") || (wayTemp == "down" && way == "up") || (wayTemp == "up" && way == "down"))) {
+                        way = wayTemp;
+                    } else {
+                        console.log("you can't go there");
+                    }
+                } else {
+                    way = wayTemp;
+                }
+            }
+        }
+
+        function move(x, y, headSnake) {
+            let oldX = x + "px";
+            let oldY = y + "px";
+            switch (way) {
+                case "up":
+                    y = y - cellSize;
+                    break;
+                case "down":
+                    y = y + cellSize;
+                    break;
+                case "left":
+                    x = x - cellSize;
+                    break;
+                case "right":
+                    x = x + cellSize;
+                    break;
+                default:
+                    break;
+            }
+            if (y < 0 || y > gameBoardHeight - cellSize || x < 0 || x > gameBoardWidth - cellSize) {
+                die();
+            }
+            let xPx = x + "px";
+            let yPx = y + "px";
+            arraySnake = document.getElementsByClassName("snake");
+            for (let item of arraySnake) {
+                if (xPx == item.style.marginLeft && yPx == item.style.marginTop) {
+                    die();
+                    break;
+                }
+            }
+            if (!stopGame) {
+                headSnake.style.marginTop = yPx;
+                headSnake.style.marginLeft = xPx;
+                //0 is the closest of the head
+                let grew = false;
+                if (fruit.style.marginLeft == xPx && fruit.style.marginTop == yPx) {
+                    grow();
+                    moveFruit();
+                }
+                if (lastSnakeId >= 0) {
+                    let lastSnake = document.getElementById("i" + lastSnakeId);
+                    for (let n = lastSnakeId - 1; n > -1; n--) {
+                        let currentSnake = document.getElementById("i" + n);
+                        lastSnake.style.marginLeft = currentSnake.style.marginLeft;
+                        lastSnake.style.marginTop = currentSnake.style.marginTop;
+                        lastSnake = currentSnake;
+                    }
+                    let firstSnake = document.getElementById("i0");
+                    firstSnake.style.marginLeft = oldX;
+                    firstSnake.style.marginTop = oldY;
+                }
+                setTimeout(function() {
+                    move(x, y, headSnake);
+                }, speed);
+
+            }
+        }
+
+        function grow() {
+            let newSnake = document.createElement("div");
+            if (lastSnakeId >= 0) {
+                let lastSnake = document.getElementById("i" + lastSnakeId);
+                newSnake.style.marginTop = (parseInt(lastSnake.style.marginTop.replace("px", "")) + cellSize) + "px";
+                newSnake.style.marginLeft = lastSnake.style.marginLeft;
+            } else {
+                newSnake.style.marginTop = fruit.style.marginTop;
+                newSnake.style.marginLeft = fruit.style.marginLeft;
+            }
+            lastSnakeId++;
+            newSnake.className = "snake";
+            newSnake.id = "i" + lastSnakeId;
+            newSnake.style.height = cellSize + "px";
+            newSnake.style.width = cellSize + "px";
+            gameBoard.insertBefore(newSnake, fruit);
+        }
+
+        function die() {
+            console.log("You died");
+            stopGame = true;
+            alert("Your socre is " + (lastSnakeId + 1) + "\nReload the page to start over.\nThanks for playing my game! <3");
+        }
+
+        function moveFruit() {
+            let arraySnake = document.getElementsByClassName("snake");
+            let len = arraySnake.length;
+            while (true) {
+                let y = Math.floor(Math.random() * gameBoardHeight);
+                let x = Math.floor(Math.random() * gameBoardWidth);
+                y = (y - y % cellSize) + "px";
+                x = (x - x % cellSize) + "px";
+                let notGood = false;
+                for (let i = 0; i < len; i++) {
+                    if (arraySnake[i].style.paddingLeft == x || arraySnake[i].style.paddingLeft == y) {
+                        notGood = true;
+                        break;
+                    }
+                }
+                if (!notGood) {
+                    fruit = document.getElementById("fruit");
+                    fruit.style.marginLeft = x;
+                    fruit.style.marginTop = y;
+                    break;
+                }
+            }
+        }
+
+        function updateSpeed(value) {
+            speed = value;
+            document.getElementById("speedV").textContent = value + "ms"
+        }
+    </script>
+</head>
+
+<body>
+    <div id=gameBoard style="height: 500px; width: 500px; margin-left: calc(50% - 250px);">
+        <div id=headSnake class=snake style="margin-left: 0px;"></div>
+        <div id=fruit></div>
+    </div>
+    <div id=settings>
+        <ul style="list-style-type: none; text-align: center;">
+            <li>
+                <label for="height">Height gameboard length</label><br>
+                <input type="range" id="height" name="height" min="50" max="1000" value=500 onchange="setSizeGameBoard(this.value, true)">
+                <span id=heightV>500px</span>
+            </li>
+            <li style="padding-top:  10px;">
+                <label for="width">Width gameboard length</label><br>
+                <input type="range" id="width" name="width" min="50" max="1000" value=500 onchange="setSizeGameBoard(this.value, false)">
+                <span id=widthV>500px</span>
+            </li>
+            <li style="padding-top: 10px;">
+                <input type="button" name="start" id=start onclick="start()" value="Start the game">
+            </li>
+        </ul>
+    </div>
+    <div id=speedDiv>
+        <span>Speed</span><br>
+        <input type="range" id="speed" name="speed" min=10 max="1000" value="500" onchange="updateSpeed(this.value)">
+        <span id=speedV>500ms</span>
+    </div>
+</body>
+
+</html>
