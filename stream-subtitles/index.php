@@ -83,33 +83,6 @@ const PART_TO_WAIT = 1000;
 let socket
 let delay = 192000
 
-let initArray = [
-  <?php
-    $content = file_get_contents("/home/nate/prog_data/temp/IPTVSubtitleStream/subhistory.json");
-    $json = json_decode($content, true);
-    $lenMain = count($json);
-
-    for($i = 0 ; $i < $lenMain; $i++) {
-      echo '{ '; 
-        echo 'start_time: "' . $json[$i]['start_time'] . '", ';
-        echo 'end_time: "' . $json[$i]['end_time'] . '", ';
-        $lenContent = count($json[$i]['content']); 
-        echo 'content: [';
-          for($n = 0; $n < $lenContent; $n++) {
-            echo '"' . str_replace('"', '\"', $json[$i]['content'][$n]) . '"';
-            if($n != $lenContent-1) {
-              echo ', ';
-            }
-          }
-        echo ' ]';
-      echo ' }';
-      if($i != $lenMain-1) {
-        echo ', ';
-      }
-
-    }
-  ?>
-]
 
 function handleEvent(event){
 
@@ -218,13 +191,39 @@ function askForDelay() {
 }
 
 function initValueFromInitArray() {
-  
+  let initArray = [
+    <?php
+      $content = file_get_contents("/home/nate/prog_data/temp/IPTVSubtitleStream/subhistory.json");
+      $json = json_decode($content, true);
+      $lenMain = count($json);
+      
+      for($i = 0 ; $i < $lenMain; $i++) {
+        echo '{ '; 
+          echo 'start_time: "' . $json[$i]['start_time'] . '", ';
+          echo 'end_time: "' . $json[$i]['end_time'] . '", ';
+          $lenContent = count($json[$i]['content']); 
+          echo 'content: [';
+          for($n = 0; $n < $lenContent; $n++) {
+            echo '"' . str_replace('"', '\"', $json[$i]['content'][$n]) . '"';
+            if($n != $lenContent-1) {
+              echo ', ';
+            }
+          }
+          echo ' ]';
+          echo ' }';
+          if($i != $lenMain-1) {
+            echo ', ';
+          }
+          
+        }
+      ?>
+  ]
+  console.log('init array')
+  console.log(initArray)
   for(const sub of initArray) {
     processJson(sub)
   }
 }
-console.log('init array')
-console.log(initArray)
 
 askForDelay()
 initValueFromInitArray()
