@@ -57,7 +57,7 @@ body, html {
     <button onclick="askForDelay()">Set the delay</button>
   </div>
 
-  <div style="text-align: center"> 
+  <div style="text-align: center; padding: 5px 0 5px 0;"> 
     <button onclick="openLinguee()">Open linguee</button> 
   </div>
 
@@ -197,8 +197,11 @@ function askForDelay() {
 }
 
 function openLinguee() {
-
-  const url = "https://www.linguee.com/english-german/search?source=de&query=" + window.getSelection().anchorNode.data
+  const anchorNode = window.getSelection().anchorNode
+  if(!anchorNode || !anchorNode.data) {
+    alert('Please select a word to open linguee')
+  }
+  const url = "https://www.linguee.com/english-german/search?source=de&query=" + anchorNode.data
   window.open(url, '_blank').focus();
 }
 
