@@ -49,6 +49,15 @@ body, html {
   gap: 10px;
   grid-auto-rows: minmax(20px, auto);
 }
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: #404040;
+  color: white;
+  font-size: 12px;
+}
 
 </style>
 
@@ -73,7 +82,12 @@ body, html {
   
 </ul>
 
-  <p id="info" style="color: whitesmoke;"></p>
+<div class="footer">
+  <div style="text-align: center;"> 
+    Content copyrighted by NDR Fernsehen 
+    <a href="https:///www.ndr.de">www.ndr.de</a>
+  </div>
+</div>
 <script>
 // adds entry to the html #console
 const CONSOLE_HTML = document.getElementById('console')
