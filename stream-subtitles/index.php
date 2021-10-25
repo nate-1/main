@@ -2,13 +2,18 @@
 <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
 
 <style>
+
 ul#console, div {
-  list-style-type: none;
   font-family: 'Roboto Mono', verdana;
+}
+
+ul#console {
+  list-style-type: none;
   font-size: 14px;
   line-height: 25px;
   padding-left: 5px;
 }
+
 ul#console li {
   border-bottom: solid 1px #80808038;
   color: white;
@@ -29,26 +34,6 @@ i.name {
   color: #3cb44b
 }
 
-.color1 {
-  color: cyan
-}
-
-.color2 {
-  color: magenta
-}
-
-.color3 {
-  color: lime
-}
-
-.color4 {
-  color: yellow
-}
-
-.color5 {
-  color: white
-}
-
 a {
   color: inherit;
 }
@@ -58,16 +43,32 @@ body, html {
   padding: 0;
 }
 
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  grid-auto-rows: minmax(20px, auto);
+}
+
 </style>
 
-<div style="position: fixed; width: 100%; height: auto; background-color: #404040; ">
-  <div style="float: left; padding: 5px 0 5px 0">
+<div style="position: fixed; width: 100%; height: auto; background-color: #404040;" class="wrapper">
+  <div style="padding: 5px 0 5px 0;">
     <button onclick="askForDelay()">Set the delay</button>
   </div>
-  <div style="float: right; padding-right: 10px;">
-    Current delay:  <span id="delay"></span>
+
+  <div style="text-align: center"> 
+    <button onclick="openLinguee()">Open linguee</button> 
   </div>
+
+  <div style="color: white; text-align: end">
+  <span style="padding-right: 10px">
+    Current delay:  <span id="delay"></span>
+  </span>
+  </div>
+
 </div>
+
 <ul id="console" style="padding-top: 35px;">
   
 </ul>
@@ -137,7 +138,11 @@ function writeLog(json) {
   
   let contentString = '<br>'
   for(const item of json.content) {
-    contentString += item + '<br>';
+    const wordArray = item.split(' ')
+    for(const word of wordArray) {
+      contentString += '<n>' + word + '</n> '
+    }
+    contentString += '<br>';
   }
   content.innerHTML = contentString
   main.appendChild(content)
@@ -149,6 +154,7 @@ function writeLog(json) {
   if(scrollVal - height + window.innerHeight < 100) {
     shouldScrollD = true
   }
+
 
   CONSOLE_HTML.appendChild(main)
     
@@ -188,6 +194,12 @@ function convertDate(stringValue) {
 function askForDelay() {
   delay = parseInt(prompt("What delay do you want? (in ms)", delay)) ?? 0
   CURRENT_DELAY.textContent = delay
+}
+
+function openLinguee() {
+
+  const url = "https://www.linguee.com/english-german/search?source=de&query=" + window.getSelection().anchorNode.data
+  window.open(url, '_blank').focus();
 }
 
 function initValueFromInitArray() {
